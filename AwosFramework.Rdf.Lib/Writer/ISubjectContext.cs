@@ -14,6 +14,7 @@ namespace AwosFramework.Rdf.Lib.Writer
 		ISubjectContext WriteLiteral(IRI predicate, string literal);
 		ISubjectContext WriteLiteral(IRI predicate, IRI baseIri, string id);
 		ISubjectContext WriteLiteral(IRI predicate, object obj);
+		ISubjectContext WriteLiteralUnchecked(IRI predicate, string content);
 		ISubjectContext WriteLiteral(IRI predicate, IEnumerable<IRI> literals);
 		ISubjectContext WriteLiteral(IRI predicate, IEnumerable<object> objects);
 		ISubjectContext WriteType(IRI type);

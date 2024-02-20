@@ -19,7 +19,7 @@ var hasId = predicates.OfPrefixed("hasId");
 
 var subject = writer.BeginSubject(iri, "1");
 subject.WriteType(tableType);
-subject.WriteLiteral(hasId, 1);
+subject.WriteLiteral(hasId, (object)((short)1));
 subject.WriteLiteral(hasName, "Max Mustermann");
 subject.WriteLiteral(hasAge, 37);
 var friends = Enumerable.Range(2, 2).Select(x => iri+x.ToString());

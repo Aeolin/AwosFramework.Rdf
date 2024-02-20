@@ -1,6 +1,7 @@
 ﻿using AwosFramework.Rdf.Lib.Core;
 using AwosFramework.Rdf.Lib.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -111,19 +112,24 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 					_builder.Append(", ");
 				}
 
-				if (obj is IRI iri)
-					_builder.Append(iri.ToString());
-				else if (obj is string @string)
-					_builder.Append($"\"{TurtleUtils.Escape(@string)}\"");
-				else if (obj is double @double)
-					_builder.Append(@double.ToString("0.##E+00"));
-				else if (obj.GetType().IsPrimitive)
-					_builder.Append(obj.ToString());
-				else
-					throw new ArgumentException("only primitives or IRI allowed");
+				AppenObjectValue(obj);
 			}
 
 			return this;
+		}
+
+		private void AppenObjectValue(object obj)
+		{
+			if (obj is IRI iri)
+				_builder.Append(iri.ToString());
+			else if (obj is string @string)
+				_builder.Append($"\"{TurtleUtils.Escape(@string)}\"");
+			else if (obj is double @double)
+				_builder.Append(@double.ToString("0.##E+00"));
+			else if (obj.GetType().IsPrimitive)
+				_builder.Append(obj.ToString());
+			else
+				throw new ArgumentException("only primitives or IRI allowed");
 		}
 
 		public ISubjectContext WriteLiteral(IRI predicate, IEnumerable<IRI> literals)
@@ -147,25 +153,28 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			return this;
 		}
 
+		public ISubjectContext WriteLiteralUnchecked(IRI predicate, string content)
+		{
+			WriteLiteralHeader(predicate);
+			_builder.Append(content);
+			return this;
+		}
+
 		public ISubjectContext WriteLiteral(IRI predicate, object obj)
 		{
 			if (obj == null)
 				return this;
 
-			if (obj is IRI iri)
-				WriteLiteral(predicate, iri);
-			else if (obj is string @string)
-				WriteLiteral(predicate, @string);
-			else if (obj.GetType().IsDecimalLike())
-				WriteLiteral(predicate, (double)obj);
-			else if (obj.GetType().IsUIntLike())
-				WriteLiteral(predicate, (ulong)obj);
-			else if (obj.GetType().IsSIntLike())
-				WriteLiteral(predicate, (long)obj);
-			else if (obj is bool @bool)
-				WriteLiteral(predicate, @bool);
+			if (obj is not string && obj is IEnumerable enumerable)
+			{
+				var objs = enumerable.Cast<object>();
+				WriteLiteral(predicate, objs);
+			}
 			else
-				throw new ArgumentException("only primitives or IRI allowed");
+			{
+				WriteLiteralHeader(predicate);
+				AppenObjectValue(obj);
+			}
 
 			return this;
 		}
