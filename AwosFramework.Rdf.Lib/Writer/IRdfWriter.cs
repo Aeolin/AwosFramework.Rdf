@@ -18,7 +18,8 @@ namespace AwosFramework.Rdf.Lib.Writer
 		public void DefineBase(IRI @base);
 		public void WriteTriplet(IRI subject, IRI predicate, IRI @object);
 		public void WriteTriplet(IRI subject, IRI predicate, string @object);
-		public void WriteTriplet(IRI subject, IRI predicate, int @object);
+		public void WriteTriplet(IRI subject, IRI predicate, long @object);
+		public void WriteTriplet(IRI subject, IRI predicate, ulong @object);
 		public void WriteTriplet(IRI subject, IRI predicate, decimal @object);
 		public void WriteTriplet(IRI subject, IRI predicate, double @object);
 		public void WriteTriplet(IRI subject, IRI predicate, bool @object);

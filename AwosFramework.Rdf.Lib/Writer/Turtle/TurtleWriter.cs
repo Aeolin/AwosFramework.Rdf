@@ -113,11 +113,6 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			WriteLineSynced($"{subject} {predicate} \"{TurtleUtils.Escape(@object)}\" .");
 		}
 
-		public void WriteTriplet(IRI subject, IRI predicate, int @object)
-		{
-			WriteLineSynced($"{subject} {predicate} {@object} .");
-		}
-
 		public void WriteTriplet(IRI subject, IRI predicate, decimal @object)
 		{
 			WriteLineSynced($"{subject} {predicate} {@object} .");
@@ -137,6 +132,16 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		{
 			_writer.Flush();
 			_writer.Dispose();
+		}
+
+		public void WriteTriplet(IRI subject, IRI predicate, long @object)
+		{
+			WriteLineSynced($"{subject} {predicate} {@object} .");
+		}
+
+		public void WriteTriplet(IRI subject, IRI predicate, ulong @object)
+		{
+			WriteLineSynced($"{subject} {predicate} {@object} .");
 		}
 	}
 }

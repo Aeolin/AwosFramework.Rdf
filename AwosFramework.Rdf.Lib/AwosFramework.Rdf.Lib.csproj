@@ -4,11 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <PackageId>Aeolin.$(AssemblyName)</PackageId>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>0.0.2</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="8.0.1" />

@@ -1,4 +1,5 @@
 ﻿using AwosFramework.Rdf.Lib.Core;
+using AwosFramework.Rdf.Lib.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +61,14 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, int number)
+		public ISubjectContext WriteLiteral(IRI predicate, long number)
+		{
+			WriteLiteralHeader(predicate);
+			_builder.Append(number);
+			return this;
+		}
+
+		public ISubjectContext WriteLiteral(IRI predicate, ulong number)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(number);
@@ -92,7 +100,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		{
 			WriteLiteralHeader(predicate);
 			bool first = true;
-			foreach(var obj in objects)
+			foreach (var obj in objects)
 			{
 				if (first)
 				{
@@ -139,6 +147,27 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			return this;
 		}
 
+		public ISubjectContext WriteLiteral(IRI predicate, object obj)
+		{
+			if (obj == null)
+				return this;
 
+			if (obj is IRI iri)
+				WriteLiteral(predicate, iri);
+			else if (obj is string @string)
+				WriteLiteral(predicate, @string);
+			else if (obj.GetType().IsDecimalLike())
+				WriteLiteral(predicate, (double)obj);
+			else if (obj.GetType().IsUIntLike())
+				WriteLiteral(predicate, (ulong)obj);
+			else if (obj.GetType().IsSIntLike())
+				WriteLiteral(predicate, (long)obj);
+			else if (obj is bool @bool)
+				WriteLiteral(predicate, @bool);
+			else
+				throw new ArgumentException("only primitives or IRI allowed");
+
+			return this;
+		}
 	}
 }

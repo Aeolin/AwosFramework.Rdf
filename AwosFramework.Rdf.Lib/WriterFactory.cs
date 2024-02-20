@@ -21,7 +21,6 @@ namespace AwosFramework.Rdf.Lib
 		public static IRdfWriter TurtleWriter(Stream stream, Encoding? enc = null)
 		{
 			return new TurtleWriter(stream, enc ?? Encoding.UTF8);
-
 		}
 	}
 }
