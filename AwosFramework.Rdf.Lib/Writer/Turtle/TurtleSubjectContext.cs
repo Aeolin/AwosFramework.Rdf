@@ -47,6 +47,15 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			return this;
 		}
 
+		public ISubjectContext WriteType(IRI type, string identifier)
+		{
+			AppendSeparator();
+			_builder.Append(IDENT);
+			_builder.Append("a ");
+			_builder.Append(type.Concat(identifier));
+			return this;
+		}
+
 		protected void WriteLiteralHeader(IRI predicate)
 		{
 			AppendSeparator();

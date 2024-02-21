@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AwosFramework.Rdf.Lib.Writer.Turtle
 {
@@ -13,11 +14,10 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 	{
 		public Stream BaseStream { get; init; }
 		public Encoding Encoding { get; init; }
-		private readonly StreamWriter _writer;
+		private readonly TextWriter _writer;
 		private readonly Dictionary<string, IRI> _prefixMap = new Dictionary<string, IRI>();
 		private readonly List<IRI> _iris = new List<IRI>();
 		private IRI _base;
-		private SemaphoreSlim _writerSemaphore = new SemaphoreSlim(1, 1);
 
 		private ObjectPool<TurtleSubjectContext> _contextPool = ObjectPool.Create<TurtleSubjectContext>();
 
@@ -26,21 +26,17 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		{
 			BaseStream=baseStream;
 			Encoding=encoding;
-			_writer = new StreamWriter(baseStream, encoding);
+			_writer = StreamWriter.Synchronized(new StreamWriter(baseStream, encoding));
 		}
 
 		protected void WriteSynced(string @string)
 		{
-			_writerSemaphore.Wait();
 			_writer.Write(@string);
-			_writerSemaphore.Release();
 		}
 
 		protected void WriteLineSynced(string @string)
 		{
-			_writerSemaphore.Wait();
 			_writer.WriteLine(@string);
-			_writerSemaphore.Release(1);
 		}
 
 		public void DefineBase(IRI iri)
@@ -103,6 +99,21 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			_contextPool.Return((TurtleSubjectContext)subject);
 		}
 
+		public void WriteTriplet(IRI subject, IRI predicate, IRI baseObject, string objectId)
+		{
+			WriteLineSynced($"{subject} {predicate} {baseObject.Concat(objectId)} .");
+		}
+
+		public void WriteTriplet(IRI baseSubject, string subjectId, IRI predicate, IRI @object)
+		{
+			WriteLineSynced($"{baseSubject.Concat(subjectId)} {predicate} {@object} .");
+		}
+
+		public void WriteTriplet(IRI baseSubject, string subjectId, IRI predicate, IRI baseObject, string objectId)
+		{
+			WriteLineSynced($"{baseSubject.Concat(subjectId)} {predicate} {baseObject.Concat(objectId)} .");
+		}
+
 		public void WriteTriplet(IRI subject, IRI predicate, IRI @object)
 		{
 			WriteLineSynced($"{subject} {predicate} {@object} .");
@@ -143,5 +154,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		{
 			WriteLineSynced($"{subject} {predicate} {@object} .");
 		}
+
+
 	}
 }

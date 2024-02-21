@@ -16,7 +16,10 @@ namespace AwosFramework.Rdf.Lib.Writer
 		public ISubjectContext BeginSubject(IRI baseIdentifier, string id);
 		public void EndSubject(ISubjectContext subject);
 		public void DefineBase(IRI @base);
+		public void WriteTriplet(IRI subject, IRI predicate, IRI baseObject, string objectId);
 		public void WriteTriplet(IRI subject, IRI predicate, IRI @object);
+		public void WriteTriplet(IRI baseSubject, string subjectId, IRI predicate, IRI @object);
+		public void WriteTriplet(IRI baseSubject, string subjectId, IRI predicate, IRI baseObject, string objectId);
 		public void WriteTriplet(IRI subject, IRI predicate, string @object);
 		public void WriteTriplet(IRI subject, IRI predicate, long @object);
 		public void WriteTriplet(IRI subject, IRI predicate, ulong @object);
