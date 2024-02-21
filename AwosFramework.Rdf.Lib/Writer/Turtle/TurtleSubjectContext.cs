@@ -137,6 +137,8 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 				_builder.Append(@double.ToString("0.##E+00"));
 			else if (obj.GetType().IsPrimitive)
 				_builder.Append(obj.ToString());
+			else if (obj.GetType().IsEnum || obj.GetType().IsValueType)
+				_builder.Append($"\"{TurtleUtils.Escape(obj.ToString())}\"");
 			else
 				throw new ArgumentException("only primitives or IRI allowed");
 		}
