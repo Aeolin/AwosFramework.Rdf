@@ -59,7 +59,7 @@ namespace AwosFramework.Rdf.Lib.Core
 			return IsPrefixed ? Prefix : (IsBased ? BasedValue : $"<{Value}>");
 		}
 
-		public string Concat(string id) 
+		public string Concat(string id)
 		{
 			if (IsImmutable)
 				throw new InvalidOperationException($"Can't concatinate immutable IRI's");
@@ -83,6 +83,41 @@ namespace AwosFramework.Rdf.Lib.Core
 			}
 		}
 
+		/// <summary>
+		/// Extends the current IRI by the given string
+		/// Also Consider that Extending a Prefixed IRI will make it Immutable
+		/// Extending a Prefixed IRI will result in an Complete IRI which string value is IRI:value
+		/// Extending a normal IRI will result in a new IRI of the format IRI/value the slash is only added if the IRI doesnt end in one
+		/// </summary>
+		/// <param name="string">The value to append to the end of the IRI</param>
+		/// <returns>Extended IRI</returns>
+		/// <exception cref="InvalidOperationException">Throws when trying to extend an immutable iri</exception>
+		public IRI Extend(string @string)
+		{
+			if (IsImmutable)
+				throw new InvalidOperationException($"Can't extend immutable IRI's");
+
+			if (IsPrefixed)
+			{
+				var res = new IRI(Concat(@string)) { IsImmutable = true };
+				res.Prefix = $"{Prefix}:{@string}";
+				return res;
+			}
+			else
+			{
+				var value = Value;
+				if (value.EndsWith("/") == false)
+					value += "/";
+
+				var res = new IRI($"{Value}{@string}");
+				if (IsBased)
+					res.Rebase(this.Base);
+
+				return res;
+			}
+		}
+
+		[Obsolete($"Use {nameof(Extend)} instead")]
 		public IRI OfPrefixed(string @string)
 		{
 			if (IsImmutable)

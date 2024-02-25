@@ -1,5 +1,6 @@
 ﻿using AwosFramework.Rdf.Lib.Core;
 using AwosFramework.Rdf.Lib.Utils;
+using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace AwosFramework.Rdf.Lib.Writer.Turtle
 {
-	internal class TurtleSubjectContext : ISubjectContext
+	internal class TurtleSubjectContext : ISubjectWriter
 	{
+		private static ObjectPool<TurtleObjectListWriter> _listWriters = ObjectPool.Create<TurtleObjectListWriter>();
 		private const string IDENT = "  ";
 		private readonly StringBuilder _builder = new StringBuilder();
 		private string _identifier;
@@ -38,7 +40,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			}
 		}
 
-		public ISubjectContext WriteType(IRI type)
+		public ISubjectWriter Write(IRI type)
 		{
 			AppendSeparator();
 			_builder.Append(IDENT);
@@ -47,7 +49,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			return this;
 		}
 
-		public ISubjectContext WriteType(IRI type, string identifier)
+		public ISubjectWriter WriteSubjectType(IRI type, string identifier)
 		{
 			AppendSeparator();
 			_builder.Append(IDENT);
@@ -64,130 +66,124 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 			_builder.Append(" ");
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, string literal)
+		public ISubjectWriter Write(IRI predicate, string literal)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append($"\"{literal}\"");
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, long number)
+		public ISubjectWriter Write(IRI predicate, long number)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(number);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, ulong number)
+		public ISubjectWriter Write(IRI predicate, ulong number)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(number);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, decimal number)
+		public ISubjectWriter Write(IRI predicate, decimal number)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(number);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, double number)
+		public ISubjectWriter Write(IRI predicate, double number)
 		{
 			WriteLiteralHeader(predicate);
-			_builder.Append(number.ToString("0.##E+00"));
+			_builder.Append(number);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, bool @bool)
+		public ISubjectWriter Write(IRI predicate, bool @bool)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(@bool);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, IEnumerable<object> objects)
-		{
-			WriteLiteralHeader(predicate);
-			bool first = true;
-			foreach (var obj in objects)
-			{
-				if (first)
-				{
-					first = false;
-				}
-				else
-				{
-					_builder.Append(", ");
-				}
-
-				AppenObjectValue(obj);
-			}
-
-			return this;
-		}
-
-		private void AppenObjectValue(object obj)
-		{
-			if (obj is IRI iri)
-				_builder.Append(iri.ToString());
-			else if (obj is string @string)
-				_builder.Append($"\"{TurtleUtils.Escape(@string)}\"");
-			else if (obj is double @double)
-				_builder.Append(@double.ToString("0.##E+00"));
-			else if (obj.GetType().IsPrimitive)
-				_builder.Append(obj.ToString());
-			else if (obj.GetType().IsEnum || obj.GetType().IsValueType)
-				_builder.Append($"\"{TurtleUtils.Escape(obj.ToString())}\"");
-			else
-				throw new ArgumentException("only primitives or IRI allowed");
-		}
-
-		public ISubjectContext WriteLiteral(IRI predicate, IEnumerable<IRI> literals)
-		{
-			WriteLiteralHeader(predicate);
-			_builder.Append(string.Join(", ", literals.Select(x => x.LiteralValue)));
-			return this;
-		}
-
-		public ISubjectContext WriteLiteral(IRI predicate, IRI iri)
+		public ISubjectWriter WriteLiteral(IRI predicate, IRI iri)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(iri);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, IRI baseIri, string id)
+		public ISubjectWriter Write(IRI predicate, IRI baseIri, string id)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(baseIri.Concat(id));
 			return this;
 		}
 
-		public ISubjectContext WriteLiteralUnchecked(IRI predicate, string content)
+		public ISubjectWriter WriteRaw(IRI predicate, string content)
 		{
 			WriteLiteralHeader(predicate);
 			_builder.Append(content);
 			return this;
 		}
 
-		public ISubjectContext WriteLiteral(IRI predicate, object obj)
+		public ISubjectWriter Write(IRI predicate, object obj)
 		{
 			if (obj == null)
 				return this;
 
 			if (obj is not string && obj is IEnumerable enumerable)
 			{
-				var objs = enumerable.Cast<object>();
-				WriteLiteral(predicate, objs);
+				var items = enumerable.Cast<object>();
+				var list = BeginObjectList(predicate);
+				foreach (var item in items)
+					list.Write(item);
+
+				EndObjectList(list);
 			}
 			else
 			{
 				WriteLiteralHeader(predicate);
-				AppenObjectValue(obj);
+				_builder.Append(TurtleUtils.ConvertToLiteral(obj));
 			}
 
 			return this;
 		}
+
+		public IObjectListWriter BeginObjectList(IRI predicate)
+		{
+			WriteLiteralHeader(predicate);
+			var writer = _listWriters.Get();
+			writer.Reset(_builder);
+			return writer;
+		}
+
+		public ISubjectWriter EndObjectList(IObjectListWriter writer)
+		{
+			if(writer is TurtleObjectListWriter turtleListWriter)
+			{
+				_listWriters.Return(turtleListWriter);
+				return this;
+			}
+			else
+			{
+				throw new ArgumentException($"expected writer to be instance of {nameof(TurtleObjectListWriter)}", nameof(writer));
+			}
+		}
+
+		public ISubjectWriter WriteSchemaType(IRI type)
+		{
+			_builder.Append($"^^{type}");
+			return this;
+		}
+
+		public ISubjectWriter WriteSchemaType(IRI baseIri, string identifier)
+		{
+			_builder.Append($"^^{baseIri.Concat(identifier)}");
+			return this;
+		}
+
 	}
 }

@@ -10,7 +10,7 @@ namespace AwosFramework.Rdf.Lib
 {
 	public static class WriterFactory
 	{
-		public static IRdfWriter TurtleWriter(string filePath, Encoding? enc = null)
+		public static ITripletWriter TurtleWriter(string filePath, Encoding? enc = null)
 		{
 			var dir = Directory.GetParent(filePath).FullName;
 			Directory.CreateDirectory(dir);
@@ -18,9 +18,14 @@ namespace AwosFramework.Rdf.Lib
 			return TurtleWriter(stream, enc);
 		}
 
-		public static IRdfWriter TurtleWriter(Stream stream, Encoding? enc = null)
+		public static ITripletWriter TurtleWriter(Stream stream, Encoding? enc = null)
 		{
-			return new TurtleWriter(stream, enc ?? Encoding.UTF8);
+			return new TurtleTripletWriter(stream, enc ?? Encoding.UTF8);
+		}
+
+		public static ITripletWriter TurtleWriter(TextWriter writer)
+		{
+			return new TurtleTripletWriter(writer);
 		}
 	}
 }

@@ -1,44 +1,48 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AwosFramework.Rdf.Lib;
+using AwosFramework.Rdf.Tests;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-using var writer = WriterFactory.TurtleWriter("test.ttl");
+using var memory = new MemoryTextWriter();
+using var writer = WriterFactory.TurtleWriter(memory);
+
 var baseIri = writer.DefineIri("https://example.com/");
 writer.DefineBase(baseIri);
 var iri = writer.DefineIri("https://example.com/table#", "table");
 var typeIri = writer.DefineIri("https://example.com/types#", "type");
-var tableType = typeIri.OfPrefixed("table");
+var tableType = typeIri.Extend("table");
 var predicates = writer.DefineIri("https://example.com/predicates#", "predicates");
-var hasName = predicates.OfPrefixed("hasName");
-var hasAge = predicates.OfPrefixed("hasAge");
-var hasFriend = predicates.OfPrefixed("hasFriend");
-var hasId = predicates.OfPrefixed("hasId");
-
+var hasName = predicates.Extend("hasName");
+var hasAge = predicates.Extend("hasAge");
+var hasFriend = predicates.Extend("hasFriend");
+var hasId = predicates.Extend("hasId");
 
 var subject = writer.BeginSubject(iri, "1");
-subject.WriteType(tableType);
-subject.WriteLiteral(hasId, (object)((short)1));
-subject.WriteLiteral(hasName, "Max Mustermann");
-subject.WriteLiteral(hasAge, 37);
-var friends = Enumerable.Range(2, 2).Select(x => iri+x.ToString());
-subject.WriteLiteral(hasFriend, friends);
+subject.Write(tableType);
+subject.Write(hasId, (object)((short)1));
+subject.Write(hasName, "Max Mustermann");
+subject.Write(hasAge, 37);
+var list = subject.BeginObjectList(hasFriend);
+list.Write(iri, "2").Write(iri, "3");
+subject.EndObjectList(list);
 writer.EndSubject(subject);
 
 subject = writer.BeginSubject(iri, "2");
-subject.WriteType(tableType);
-subject.WriteLiteral(hasId, 2);
-subject.WriteLiteral(hasName, "Agatha Martinson");
-subject.WriteLiteral(hasAge, 19);
-subject.WriteLiteral(hasFriend, iri, "1");
+subject.Write(tableType);
+subject.Write(hasId, 2);
+subject.Write(hasName, "Agatha Martinson");
+subject.Write(hasAge, 19);
+subject.Write(hasFriend, iri, "1");
 writer.EndSubject(subject);
 
 subject = writer.BeginSubject(iri, "3");
-subject.WriteType(tableType);
-subject.WriteLiteral(hasId, 3);
-subject.WriteLiteral(hasName, "Günther Boomer");
-subject.WriteLiteral(hasAge, 76);
-subject.WriteLiteral(hasFriend, iri, "2");
+subject.Write(tableType);
+subject.Write(hasId, 3);
+subject.Write(hasName, "Günther Boomer");
+subject.Write(hasAge, 76);
+subject.Write(hasFriend, iri, "2");
 writer.EndSubject(subject);
 
+Console.WriteLine(memory.ToString());
