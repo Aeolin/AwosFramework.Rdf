@@ -65,7 +65,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		public IObjectListWriter Write(string literal)
 		{
 			AppendSeparator();
-			Builder.Append(TurtleUtils.Escape(literal));
+			Builder.Append($"\"{TurtleUtils.Escape(literal)}\"");
 			return this;
 		}
 
