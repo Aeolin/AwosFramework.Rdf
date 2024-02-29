@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <PackageId>Aeolin.$(AssemblyName)</PackageId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.2.2</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
