@@ -64,7 +64,7 @@ namespace AwosFramework.Rdf.Lib.Core
 			if (IsImmutable)
 				throw new InvalidOperationException($"Can't concatinate immutable IRI's");
 
-			return IsPrefixed ? $"{this.Prefix}:{id}" : (IsBased ? $"{this.BasedValue}{id}" : $"<{this.BasedValue}{id}>");
+			return IsPrefixed ? $"{this.Prefix}:{id}" : (IsBased ? $"{this.BasedValue}{id}" : $"<{this.Value}{id}>");
 		}
 
 		internal void Rebase(IRI iri)
@@ -94,6 +94,9 @@ namespace AwosFramework.Rdf.Lib.Core
 		/// <exception cref="InvalidOperationException">Throws when trying to extend an immutable iri</exception>
 		public IRI Extend(string @string)
 		{
+			if (string.IsNullOrEmpty(@string))
+				return this;
+
 			if (IsImmutable)
 				throw new InvalidOperationException($"Can't extend immutable IRI's");
 
@@ -109,7 +112,7 @@ namespace AwosFramework.Rdf.Lib.Core
 				if (value.EndsWith("/") == false)
 					value += "/";
 
-				var res = new IRI($"{Value}{@string}");
+				var res = new IRI($"{value}{@string}");
 				if (IsBased)
 					res.Rebase(this.Base);
 
