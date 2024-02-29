@@ -69,7 +69,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		public ISubjectWriter Write(IRI predicate, string literal)
 		{
 			WriteLiteralHeader(predicate);
-			_builder.Append($"\"{literal}\"");
+			_builder.Append($"\"{TurtleUtils.Escape(literal)}\"");
 			return this;
 		}
 

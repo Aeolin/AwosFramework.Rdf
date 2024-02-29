@@ -2,6 +2,7 @@
 using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		public Stream BaseStream { get; init; }
 		public Encoding Encoding { get; init; }
 		private readonly TextWriter _writer;
-		private readonly Dictionary<string, IRI> _prefixMap = new Dictionary<string, IRI>();
+		private readonly ConcurrentDictionary<string, IRI> _prefixMap = new ConcurrentDictionary<string, IRI>();
 		private readonly List<IRI> _iris = new List<IRI>();
 		private IRI _base;
 
