@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AwosFramework.Rdf.Lib.Iris
+namespace AwosFramework.Rdf.Lib.Core
 {
 	public class IRI : IEquatable<IRI>
 	{

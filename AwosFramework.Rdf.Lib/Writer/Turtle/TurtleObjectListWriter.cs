@@ -64,6 +64,9 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public IObjectListWriter Write(string literal)
 		{
+			if (literal== null)
+				return this;
+
 			AppendSeparator();
 			Builder.Append($"\"{TurtleUtils.Escape(literal)}\"");
 			return this;
@@ -71,6 +74,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public IObjectListWriter Write(IRI baseIri, string id)
 		{
+			ArgumentNullException.ThrowIfNull(id);
 			AppendSeparator();
 			Builder.Append(baseIri.Concat(id));
 			return this;
@@ -85,6 +89,9 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public IObjectListWriter Write(object obj)
 		{
+			if (obj == null)
+				return this;
+
 			AppendSeparator();
 			Builder.Append(TurtleUtils.ConvertToLiteral(obj));
 			return this;
@@ -105,6 +112,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public IObjectListWriter WriteSchemaType(IRI baseIri, string identifier)
 		{
+			ArgumentNullException.ThrowIfNull(identifier);
 			Builder.Append($"^^{baseIri.Concat(identifier)}");
 			return this;
 		}

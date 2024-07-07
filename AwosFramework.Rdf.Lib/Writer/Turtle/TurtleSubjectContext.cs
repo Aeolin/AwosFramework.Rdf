@@ -68,6 +68,9 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ISubjectWriter Write(IRI predicate, string literal)
 		{
+			if (literal ==null)
+				return this;
+
 			WriteLiteralHeader(predicate);
 			_builder.Append($"\"{TurtleUtils.Escape(literal)}\"");
 			return this;
@@ -162,7 +165,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ISubjectWriter EndObjectList(IObjectListWriter writer)
 		{
-			if(writer is TurtleObjectListWriter turtleListWriter)
+			if (writer is TurtleObjectListWriter turtleListWriter)
 			{
 				_listWriters.Return(turtleListWriter);
 				return this;
@@ -175,12 +178,14 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ISubjectWriter WriteSchemaType(IRI type)
 		{
+
 			_builder.Append($"^^{type}");
 			return this;
 		}
 
 		public ISubjectWriter WriteSchemaType(IRI baseIri, string identifier)
 		{
+			ArgumentNullException.ThrowIfNull(identifier);
 			_builder.Append($"^^{baseIri.Concat(identifier)}");
 			return this;
 		}

@@ -96,6 +96,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ISubjectWriter BeginSubject(IRI identifier, string id)
 		{
+			ArgumentNullException.ThrowIfNull(id);
 			var instance = _subjectWriterPool.Get();
 			instance.Reset(identifier.Concat(id));
 			return instance;
@@ -111,18 +112,22 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ITripletWriter Write(IRI subject, IRI predicate, IRI baseObject, string objectId)
 		{
+			ArgumentNullException.ThrowIfNull(objectId);
 			WriteLineSynced($"{subject} {predicate} {baseObject.Concat(objectId)} .");
 			return this;
 		}
 
 		public ITripletWriter Write(IRI baseSubject, string subjectId, IRI predicate, IRI @object)
 		{
+			ArgumentNullException.ThrowIfNull(subjectId);
 			WriteLineSynced($"{baseSubject.Concat(subjectId)} {predicate} {@object} .");
 			return this;
 		}
 
 		public ITripletWriter Write(IRI baseSubject, string subjectId, IRI predicate, IRI baseObject, string objectId)
 		{
+			ArgumentNullException.ThrowIfNull(subjectId);
+			ArgumentNullException.ThrowIfNull(objectId);
 			WriteLineSynced($"{baseSubject.Concat(subjectId)} {predicate} {baseObject.Concat(objectId)} .");
 			return this;
 		}
@@ -135,6 +140,9 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ITripletWriter Write(IRI subject, IRI predicate, string @object)
 		{
+			if (@object == null)
+				return this;
+
 			WriteLineSynced($"{subject} {predicate} \"{TurtleUtils.Escape(@object)}\" .");
 			return this;
 		}
@@ -201,6 +209,9 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ITripletWriter Write(IRI subject, IRI predicate, object @object)
 		{
+			if (@object == null)
+				return this;
+
 			WriteLineSynced($"{subject} {predicate} {TurtleUtils.ConvertToLiteral(@object)} .");
 			return this;
 		}
