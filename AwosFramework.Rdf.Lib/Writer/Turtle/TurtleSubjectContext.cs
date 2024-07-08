@@ -107,7 +107,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		public ISubjectWriter Write(IRI predicate, bool @bool)
 		{
 			WriteLiteralHeader(predicate);
-			_builder.Append(@bool);
+			_builder.Append(@bool.ToString().ToLower());
 			return this;
 		}
 

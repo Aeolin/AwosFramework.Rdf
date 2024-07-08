@@ -30,7 +30,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 		public IObjectListWriter Write(bool @bool)
 		{
 			AppendSeparator();
-			Builder.Append(@bool);
+			Builder.Append(@bool.ToString().ToLower());
 			return this;
 		}
 

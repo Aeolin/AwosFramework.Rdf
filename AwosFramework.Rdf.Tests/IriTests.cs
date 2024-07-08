@@ -19,6 +19,19 @@ namespace AwosFramework.Rdf.Tests
 			Assert.Equal(value, iri.Value);
 		}
 
+		[Fact]
+		public void Constructor_ValidIRI_ShouldSupportNonAscii()
+		{
+			// Arrange
+			var value = "http://example.com/äüöè";
+
+			// Act
+			var iri = new IRI(value);
+
+			// Assert
+			Assert.Equal(value, iri.Value);
+		}
+
 		[Theory]
 		[InlineData("")]
 		[InlineData(" ")]

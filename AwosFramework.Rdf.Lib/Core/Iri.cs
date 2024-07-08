@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AwosFramework.Rdf.Lib.Core
@@ -19,6 +20,9 @@ namespace AwosFramework.Rdf.Lib.Core
 		public IRI Base { get; private set; }
 		public bool IsImmutable { get; init; } = false;
 
+		private static readonly Regex IRI_PATTERN = new Regex(@"^(([a-zA-Z][a-zA-Z0-9+.-]*):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$", RegexOptions.Compiled);
+
+
 		internal void DefinePrefix(string prefix)
 		{
 			this.Prefix = prefix;
@@ -31,10 +35,8 @@ namespace AwosFramework.Rdf.Lib.Core
 				throw new ArgumentException("IRI cannot be null or whitespace.", nameof(value));
 			}
 
-			if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
-			{
+			if(IRI_PATTERN.IsMatch(value) == false)
 				throw new ArgumentException("Invalid IRI format.", nameof(value));
-			}
 
 			Value = value;
 		}

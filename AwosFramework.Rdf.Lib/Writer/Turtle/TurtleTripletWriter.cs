@@ -161,7 +161,7 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public ITripletWriter Write(IRI subject, IRI predicate, bool @object)
 		{
-			WriteLineSynced($"{subject} {predicate} {@object} .");
+			WriteLineSynced($"{subject} {predicate} {@object.ToString().ToLower()} .");
 			return this;
 		}
 
