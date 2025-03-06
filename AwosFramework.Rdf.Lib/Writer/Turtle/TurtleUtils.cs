@@ -17,14 +17,8 @@ namespace AwosFramework.Rdf.Lib.Writer.Turtle
 
 		public static string Escape(string @string)
 		{
-			var res = "";
-			foreach (var c in @string)
-				if (ESCAPEABLE_CHARS.Contains(c))
-					res += $"\\{c}";
-				else
-					res += c;
-
-			return res;
+			var escaped = @string.Replace("\n", "\\n").Replace("\r", "\\r").Replace(@"\", @"\\").Replace("\"", "\\\"");
+			return escaped;
 		}
 
 		public static string ConvertToLiteral(object obj)
